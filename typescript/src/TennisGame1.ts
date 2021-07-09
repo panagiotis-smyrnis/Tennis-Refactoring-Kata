@@ -38,7 +38,7 @@ export class TennisGame1 implements TennisGame {
       return this.scoreWhenIsATie(this.player1Score);
     }
 
-    if (this.arePlayersInBreakPoint()) {
+    if (this.playersAreAtBreakPoint()) {
       return this.scoreWhenPointsMoreThan4(
         this.player1Score,
         this.player2Score
@@ -48,7 +48,7 @@ export class TennisGame1 implements TennisGame {
     return this.scoreInTheGame(this.player1Score, this.player2Score);
   }
 
-  private arePlayersInBreakPoint() {
+  private playersAreAtBreakPoint() {
     return this.player1Score >= 4 || this.player2Score >= 4;
   }
 
