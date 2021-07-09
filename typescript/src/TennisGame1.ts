@@ -1,69 +1,113 @@
-import { TennisGame } from './TennisGame';
+import { TennisGame } from "./TennisGame";
 
+enum Player {
+  One = "player1",
+  Tow = "player2",
+}
+
+enum Win {
+  Player1 = "Win for player1",
+  Player2 = "Win for player2",
+}
+
+enum Advantage {
+  Player1 = "Advantage player1",
+  Player2 = "Advantage player2",
+}
+
+enum Score {
+  All = "All",
+  Love = "Love",
+  Fifteen = "Fifteen",
+  Thirty = "Thirty",
+  Forty = "Forty",
+  Deuce = "Deuce",
+}
 
 export class TennisGame1 implements TennisGame {
-  private m_score1: number = 0;
-  private m_score2: number = 0;
-  private player1Name: string;
-  private player2Name: string;
-
-  constructor(player1Name: string, player2Name: string) {
-    this.player1Name = player1Name;
-    this.player2Name = player2Name;
-  }
+  private player1Score: number = 0;
+  private player2Score: number = 0;
 
   wonPoint(playerName: string): void {
-    if (playerName === 'player1')
-      this.m_score1 += 1;
-    else
-      this.m_score2 += 1;
+    if (playerName === Player.One) this.player1Score += 1;
+    else this.player2Score += 1;
   }
 
   getScore(): string {
-    let score: string = '';
+    if (this.playersAreTied()) {
+      return this.scoreWhenIsATie(this.player1Score);
+    }
+
+    if (this.arePlayersInBreakPoint()) {
+      return this.scoreWhenPointsMoreThan4(
+        this.player1Score,
+        this.player2Score
+      );
+    }
+
+    return this.scoreInTheGame(this.player1Score, this.player2Score);
+  }
+
+  private arePlayersInBreakPoint() {
+    return this.player1Score >= 4 || this.player2Score >= 4;
+  }
+
+  private playersAreTied() {
+    return this.player1Score === this.player2Score;
+  }
+
+  private scoreWhenIsATie(score: number): string {
+    switch (score) {
+      case 0:
+        return Score.Love + "-" + Score.All;
+      case 1:
+        return Score.Fifteen + "-" + Score.All;
+      case 2:
+        return Score.Thirty + "-" + Score.All;
+      default:
+        return Score.Deuce;
+    }
+  }
+
+  private scoreWhenPointsMoreThan4(
+    player1Score: number,
+    player2Score: number
+  ): string {
+    const scoreDifference: number = player1Score - player2Score;
+    if (scoreDifference === 1) {
+      return Advantage.Player1;
+    }
+    if (scoreDifference === -1) {
+      return Advantage.Player2;
+    }
+    if (scoreDifference >= 2) {
+      return Win.Player1;
+    }
+    return Win.Player2;
+  }
+
+  private scoreInTheGame(player1Score: number, player2Score: number): string {
+    let score: string = "";
     let tempScore: number = 0;
-    if (this.m_score1 === this.m_score2) {
-      switch (this.m_score1) {
+    for (let i = 1; i < 3; i++) {
+      if (i === 1) tempScore = player1Score;
+      else {
+        score += "-";
+        tempScore = player2Score;
+      }
+      switch (tempScore) {
         case 0:
-          score = 'Love-All';
+          score += Score.Love;
           break;
         case 1:
-          score = 'Fifteen-All';
+          score += Score.Fifteen;
           break;
         case 2:
-          score = 'Thirty-All';
+          score += Score.Thirty;
           break;
-        default:
-          score = 'Deuce';
+        case 3:
+          score += Score.Forty;
           break;
-
-      }
-    }
-    else if (this.m_score1 >= 4 || this.m_score2 >= 4) {
-      const minusResult: number = this.m_score1 - this.m_score2;
-      if (minusResult === 1) score = 'Advantage player1';
-      else if (minusResult === -1) score = 'Advantage player2';
-      else if (minusResult >= 2) score = 'Win for player1';
-      else score = 'Win for player2';
-    }
-    else {
-      for (let i = 1; i < 3; i++) {
-        if (i === 1) tempScore = this.m_score1;
-        else { score += '-'; tempScore = this.m_score2; }
-        switch (tempScore) {
-          case 0:
-            score += 'Love';
-            break;
-          case 1:
-            score += 'Fifteen';
-            break;
-          case 2:
-            score += 'Thirty';
-            break;
-          case 3:
-            score += 'Forty';
-            break;
-        }
       }
     }
     return score;
